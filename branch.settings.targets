@@ -1,0 +1,11 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup Label="BranchSettings">
+        <BranchRoot>$(MSBuildThisFileDirectory.Trim("\"))</BranchRoot>
+        <BranchDrive>$([System.IO.Path]::GetPathRoot($(BranchRoot)).Trim("\"))</BranchDrive>
+        <BranchName>master</BranchName>
+    </PropertyGroup>
+
+    <Import Project="$(BranchRoot)\Tools\Settings\initial.settings.targets" />
+
+</Project>

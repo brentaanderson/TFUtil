@@ -1,0 +1,177 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- ===============================================================================================================
+        <copyright file="TargetFrameworkMonikerAssemblyAttributes.targets" company="Brent A. Anderson">
+            This work is licensed under the Creative Commons Attribution-NonCommercial 2.0 Generic License.
+            To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/2.0/ or send a letter to
+                Creative Commons
+                PO Box 1866
+                Mountain View, CA  94042
+                USA
+        </copyright>
+        <author>Brent A. Anderson</author>
+        <summary>
+            Defines MSBuild targets and supporting properties used to set assembly-level attributes.
+
+            Overrides the _SetTargetFrameworkMonikerAttribute and GenerateTargetFrameworkMonikerAttribute targets to enable
+            projects to define assembly attributes via properties.  This removes the need for each project to maintain a
+            separate code file to keep attributes organised and in many ways improves overall organisation.
+
+            Targets and property names are derrived from Microsoft (r) target files (Copyright (C) Microsoft Corporation.
+            All rights reserved., <see cref=https://github.com/Microsoft/msbuild />).  Reference sources:
+                Microsoft.Common.CurrentVersion.targets
+                Microsoft.BuildSteps.targets
+                Microsoft.CSharp.CurrentVersion.targets
+                Microsoft.VisualBasic.CurrentVersion.targets
+        </summary>
+    ================================================================================================================ -->
+
+
+    <PropertyGroup Condition="'$(Language)' == 'C++'">
+        <BeforeGenerateTargetFrameworkMonikerAttributeTargets>ClCompile</BeforeGenerateTargetFrameworkMonikerAttributeTargets>
+        <DefaultLanguageNamespaceSeperator>::</DefaultLanguageNamespaceSeperator>
+        <DefaultLanguageStringDecoration>L</DefaultLanguageStringDecoration>
+        <DefaultLanguageCommentIndicator>//</DefaultLanguageCommentIndicator>
+        <DefaultLanguageAssemblyAttributeName>assembly</DefaultLanguageAssemblyAttributeName>
+        <DefaultLanguageAttributeStart>[</DefaultLanguageAttributeStart>
+        <DefaultLanguageAttributeFinish>]</DefaultLanguageAttributeFinish>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Language)' == 'C#'">
+        <BeforeGenerateTargetFrameworkMonikerAttributeTargets>BeforeCompile</BeforeGenerateTargetFrameworkMonikerAttributeTargets>
+        <DefaultLanguageNamespaceSeperator>.</DefaultLanguageNamespaceSeperator>
+        <DefaultLanguageStringDecoration />
+        <DefaultLanguageCommentIndicator>//</DefaultLanguageCommentIndicator>
+        <DefaultLanguageAssemblyAttributeName>assembly</DefaultLanguageAssemblyAttributeName>
+        <DefaultLanguageAttributeStart>[</DefaultLanguageAttributeStart>
+        <DefaultLanguageAttributeFinish>]</DefaultLanguageAttributeFinish>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Language)' == 'VB'">
+        <BeforeGenerateTargetFrameworkMonikerAttributeTargets>BeforeCompile</BeforeGenerateTargetFrameworkMonikerAttributeTargets>
+        <DefaultLanguageNamespaceSeperator>.</DefaultLanguageNamespaceSeperator>
+        <DefaultLanguageStringDecoration />
+        <DefaultLanguageCommentIndicator>Rem</DefaultLanguageCommentIndicator>
+        <DefaultLanguageAssemblyAttributeName>Assembly</DefaultLanguageAssemblyAttributeName>
+        <DefaultLanguageAttributeStart>&lt;</DefaultLanguageAttributeStart>
+        <DefaultLanguageAttributeFinish>&gt;</DefaultLanguageAttributeFinish>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFrameworkMonikerAssemblyAttributesPath>$(IntermediateOutputPath)AssemblyAttributes$(DefaultLanguageSourceExtension)</TargetFrameworkMonikerAssemblyAttributesPath>
+    </PropertyGroup>
+
+
+    <!-- ===============================================================================================================
+                                          _SetTargetFrameworkMonikerAttribute
+    ================================================================================================================ -->
+
+    <Target Name="_SetTargetFrameworkMonikerAttribute" BeforeTargets="GenerateTargetFrameworkMonikerAttribute" Condition="'$(TargetFrameworkMoniker)' != '' and '$(TargetingClr2Framework)' != 'true'">
+
+        <PropertyGroup>
+            <TargetFrameworkMonikerAssemblyAttributeText>
+$(DefaultLanguageCommentIndicator) This is a generated file, do not modify.
+$(DefaultLanguageCommentIndicator) Content based on project properties and TargetFramework version.
+            </TargetFrameworkMonikerAssemblyAttributeText>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(Language)' == 'C++'">
+            <TargetFrameworkMonikerAssemblyAttributeText>
+$(TargetFrameworkMonikerAssemblyAttributeText)
+
+#using &lt;mscorlib.dll&gt;
+
+// TargetFramework version
+[assembly: System::Runtime::Versioning::TargetFrameworkAttribute(L&quot;$(TargetFrameworkMoniker)&quot;, FrameworkDisplayName=L&quot;$(TargetFrameworkMonikerDisplayName)&quot;)]%3b
+            </TargetFrameworkMonikerAssemblyAttributeText>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(Language)' == 'C#'">
+            <TargetFrameworkMonikerAssemblyAttributeText>
+$(TargetFrameworkMonikerAssemblyAttributeText)
+
+using System%3b
+using System.Reflection%3b
+
+// TargetFramework version
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(&quot;$(TargetFrameworkMoniker)&quot;, FrameworkDisplayName = &quot;$(TargetFrameworkMonikerDisplayName)&quot;)]
+            </TargetFrameworkMonikerAssemblyAttributeText>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(Language)' == 'VB'">
+            <TargetFrameworkMonikerAssemblyAttributeText>
+$(TargetFrameworkMonikerAssemblyAttributeText)
+
+Option Strict Off
+Option Explicit On
+
+Imports System
+Imports System.Reflection
+
+Rem TargetFramework version
+&lt;Assembly: Global.System.Runtime.Versioning.TargetFrameworkAttribute(&quot;$(TargetFrameworkMoniker)&quot;, FrameworkDisplayName:=&quot;$(TargetFrameworkMonikerDisplayName)&quot;)&gt;
+            </TargetFrameworkMonikerAssemblyAttributeText>
+        </PropertyGroup>
+
+    </Target>
+
+
+    <!-- ===============================================================================================================
+                                        GenerateTargetFrameworkMonikerAttribute
+
+    Emit any specified code fragments into a temporary source file for the compiler.
+    ================================================================================================================ -->
+
+    <Target Name="GenerateTargetFrameworkMonikerAttribute" BeforeTargets="$(BeforeGenerateTargetFrameworkMonikerAttributeTargets)" DependsOnTargets="PrepareForBuild;GetReferenceAssemblyPaths" Inputs="$(MSBuildProjectFullPath)" Outputs="$(TargetFrameworkMonikerAssemblyAttributesPath)" Condition="'$(TargetRuntime)' == 'Managed'">
+
+        <ItemGroup>
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyCLSCompliant)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)CLSCompliantAttribute($(AssemblyCLSCompliant))" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyCompany)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyCompanyAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyCompany)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyCOMVisible)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Runtime$(DefaultLanguageNamespaceSeperator)InteropServices$(DefaultLanguageNamespaceSeperator)ComVisible($(AssemblyCOMVisible))" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyConfiguration)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyConfigurationAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyConfiguration)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyCopyright)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyCopyrightAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyCopyright)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyCulture)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyCultureAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyCulture)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyDescription)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyDescriptionAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyDescription)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyFileVersion)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyFileVersionAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyFileVersion)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyNeutralResourcesLanguage)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Resources$(DefaultLanguageNamespaceSeperator)NeutralResourcesLanguageAttribute(&quot;$(AssemblyNeutralResourcesLanguage)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyProduct)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyProductAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyProduct)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyTitle)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyTitleAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyTitle)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyTrademark)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyTrademarkAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyTrademark)&quot;)" />
+            <GeneratedAssemblyAttributeLines Condition="'$(AssemblyVersion)' != ''" Include="System$(DefaultLanguageNamespaceSeperator)Reflection$(DefaultLanguageNamespaceSeperator)AssemblyVersionAttribute($(DefaultLanguageStringDecoration)&quot;$(AssemblyVersion)&quot;)" />
+        </ItemGroup>
+
+        <PropertyGroup>
+            <TargetFrameworkMonikerAssemblyAttributeText Condition="'@(GeneratedAssemblyAttributeLines)' != ''">$(TargetFrameworkMonikerAssemblyAttributeText)
+$(DefaultLanguageCommentIndicator) Additional attributes from custom properties
+@(GeneratedAssemblyAttributeLines->'$(DefaultLanguageAttributeStart)$(DefaultLanguageAssemblyAttributeName): %(Identity)$(DefaultLanguageAttributeFinish)')
+            </TargetFrameworkMonikerAssemblyAttributeText>
+        </PropertyGroup>
+
+        <!-- This is a file shared between projects so we have to take care to handle simultaneous writes (by
+             ContinueOnError) and a race between clean from one project and build from another (by not adding to
+             FilesWritten so it doesn't clean) -->
+        <WriteLinesToFile File="$(TargetFrameworkMonikerAssemblyAttributesPath)" Lines="$(TargetFrameworkMonikerAssemblyAttributeText)" Condition="'$(TargetFrameworkMonikerAssemblyAttributeText)' != ''" ContinueOnError="true" Overwrite="true"/>
+
+        <ItemGroup Condition="'$(Language)' == 'C++'">
+            <ClCompile Include="$(TargetFrameworkMonikerAssemblyAttributesPath)" Condition="'@(ClCompile)' != '' and '$(AdditionalSourcesText)' != ''">
+                <!-- Since we didn't emit any necessary #include "stdafx.h" or similar -->
+                <PrecompiledHeader>NotUsing</PrecompiledHeader>
+                <!-- The appropriate CompileAsManaged setting will automatically be set depending on the current CLRSupport value -->
+            </ClCompile>
+        </ItemGroup>
+
+        <ItemGroup Condition="'$(Language)' == 'C#'">
+            <Compile Include="$(TargetFrameworkMonikerAssemblyAttributesPath)" />
+        </ItemGroup>
+
+    </Target>
+
+
+    <!-- ===============================================================================================================
+                                                CleanAssemblyAttributes
+    ================================================================================================================ -->
+
+    <Target Name="CleanAssemblyAttributes" BeforeTargets="CoreClean">
+        <Delete Files="$(TargetFrameworkMonikerAssemblyAttributesPath)" />
+    </Target>
+
+</Project>

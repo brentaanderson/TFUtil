@@ -1,0 +1,39 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+    <PropertyGroup Label="BuildSettings">
+        <BuildInParallel Condition="'$(BuildInParallel)'==''">true</BuildInParallel>
+        <SkipNonexistentProjects Condition="'$(SkipNonexistentProjects)'==''">false</SkipNonexistentProjects>
+    </PropertyGroup>
+
+    <Target Name="Build" Condition="'@(ProjectFile)' != ''">
+        <MSBuild Projects="@(ProjectFile)"
+                 Targets="Build"
+                 BuildInParallel="$(BuildInParallel)"
+                 SkipNonexistentProjects="$(SkipNonexistentProjects)"
+                 Properties="@(Properties)" />
+    </Target>
+
+    <Target Name="Clean" Condition="'@(ProjectFile)' != ''">
+        <MSBuild Projects="@(ProjectFile)"
+                 Targets="Clean"
+                 BuildInParallel="$(BuildInParallel)"
+                 SkipNonexistentProjects="$(SkipNonexistentProjects)"
+                 Properties="@(Properties)" />
+    </Target>
+
+    <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+
+    <Target Name="Traverse" Condition="'@(ProjectFile)' != ''">
+        <Message Text="Traverse: $([System.IO.Path]::GetFullPath('$(MSBuildProjectFile)'))" Importance="High" />
+        <Message Text="...Build: %(ProjectFile.FullPath)" Importance="High" />
+        <MSBuild Projects="%(ProjectFile.FullPath)"
+                 Targets="Traverse"
+                 Properties="@(Properties)"
+                 Condition="'%(ProjectFile.Filename)%(ProjectFile.Extension)' == 'dirs.proj'" />
+    </Target>
+
+</Project>

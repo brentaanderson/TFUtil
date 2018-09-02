@@ -1,0 +1,139 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+    <!--
+         Set basic defaults common to all projects.
+    -->
+
+    <PropertyGroup Label="BuildSettings">
+        <BuildInParallel Condition="'$(BuildInParallel)'==''">true</BuildInParallel>
+        <SkipNonexistentProjects Condition="'$(SkipNonexistentProjects)'==''">false</SkipNonexistentProjects>
+        <UseSolutionBuild Condition="'$(UseSolutionBuild)' == ''">false</UseSolutionBuild>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Paths">
+        <IntermediateRoot Condition="'$(IntermediateRoot)' == ''">$(BranchDrive)\$(BranchName).intermediates</IntermediateRoot>
+        <OutputRoot Condition="'$(OutputRoot)' == ''">$(BranchDrive)\$(BranchName).binaries</OutputRoot>
+
+        <!--
+        The SearchPaths property is set to find assemblies in the following order:
+
+            (1) Treat the reference's Include as if it were a real file name.
+            (2) Files in the External folder.
+            (3) Files from current project - indicated by {CandidateAssemblyFiles}
+            (4) Look in the application's output folder.
+            (5) The hintpath from the referenced item itself, indicated by {HintPathFromItem}.
+        -->
+        <AssemblySearchPaths>
+            {RawFileName};
+            $(ExternalRoot);
+            {CandidateAssemblyFiles};
+            $(OutDir);
+            {HintPathFromItem}
+        </AssemblySearchPaths>
+    </PropertyGroup>
+
+    <PropertyGroup Label="AssemblyAttributes">
+        <AssemblyCLSCompliant Condition="'$(AssemblyCLSCompliant)' == ''">true</AssemblyCLSCompliant>
+        <AssemblyCOMVisible Condition="'$(AssemblyCOMVisible)' == ''">true</AssemblyCOMVisible>
+        <AssemblyName Condition="'$(AssemblyName)' == ''">$(MSBuildProjectName)</AssemblyName>
+        <AssemblyTitle Condition="'$(AssemblyTitle)' == ''">$(AssemblyName)</AssemblyTitle>
+        <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.0.0.0</AssemblyVersion>
+        <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">$(COMPUTERNAME.ToLower()).$(BranchName.ToLower())_$(Configuration.ToLower()).$([System.DateTime]::Now.ToString("yyMMdd-HHmm"))</AssemblyFileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Label="DefaultSettings">
+        <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == '' and Exists('$(AssemblyName).snk')">$(AssemblyName).snk</AssemblyOriginatorKeyFile>
+        <Configuration Condition="'$(Configuration)' == ''">Checked</Configuration>
+        <Platform Condition="'$(Platform)' == ''">x64</Platform>
+        <PlatformTarget>$(Platform)</PlatformTarget>
+        <SignAssembly Condition="'$(SignAssembly)' == ''">true</SignAssembly>
+        <TargetFrameworkVersion Condition="'$(UseMultiTargetting)' != 'true'">v4.5.1</TargetFrameworkVersion>
+        <TargetFrameworkVersion Condition="'$(UseMultiTargetting)' == 'true'">$(MultiTargetFrameworkVersion)</TargetFrameworkVersion>
+        <UseVSHostingProcess Condition="'$(UseVSHostingProcess)' == ''">false</UseVSHostingProcess>
+        <NoWarn>CS7035;7035</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(AssemblyOriginatorKeyFile)" Condition="'$(AssemblyOriginatorKeyFile)' != ''" />
+    </ItemGroup>
+
+
+    <!--
+         Add special conditions so devenv displays configuration/platform in the IDE.
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Retail|x64'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Checked|x64'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Retail|x86'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Checked|x86'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'" />
+    -->
+
+
+    <!--
+         Set per-architecture defaults common to all projects.
+    -->
+
+    <PropertyGroup Label="Configuration">
+        <ProcessorArchitecture Condition=" '$(Platform)' == 'AnyCpu' ">msil</ProcessorArchitecture>
+        <ProcessorArchitecture Condition=" '$(Platform)' == 'x64' ">amd64</ProcessorArchitecture>
+        <ProcessorArchitecture Condition=" '$(Platform)' == 'Itanium' ">ia64</ProcessorArchitecture>
+        <ProcessorArchitecture Condition=" '$(Platform)' == 'x86' ">x86</ProcessorArchitecture>
+        <ProcessorArchitecture Condition=" '$(Platform)' == 'ARM' ">arm</ProcessorArchitecture>
+
+        <_DefinedProcessorArchitecture>$(ProcessorArchitecture)</_DefinedProcessorArchitecture>
+    </PropertyGroup>
+
+
+    <!--
+         Additional settings that use one or more values set above.
+    -->
+
+    <PropertyGroup Label="DefaultSettings">
+        <IntermediateOutputPath Condition="'$(IntermediateOutputPath)' == ''">$(IntermediateRoot)\$(ProcessorArchitecture)$(ShortConfiguration)\$(MSBuildProjectName)\</IntermediateOutputPath>
+        <OutputBase Condition="'$(OutputBase)' == ''">$(OutputRoot)\$(ProcessorArchitecture)$(ShortConfiguration)</OutputBase>
+        <OutDir Condition="'$(OutDir)' == ''">$(OutputBase)\$(MSBuildProjectName)\</OutDir>
+        <OutputPath>$(OutDir)</OutputPath>
+        <DocumentationFile Condition="'$(DocumentationFile)' == ''">$(OutDir)$(AssemblyName).xml</DocumentationFile>
+
+        <!-- Assembly attributes default to the Temp directory for some reason. -->
+        <!-- <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(IntermediateOutputPath)','AssemblyAttributes$(DefaultLanguageSourceExtension)'))</TargetFrameworkMonikerAssemblyAttributesPath> -->
+    </PropertyGroup>
+
+    <PropertyGroup Label="CompilerDefaults">
+        <DebugSymbols>true</DebugSymbols>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    </PropertyGroup>
+
+    <PropertyGroup Label="StaticAnalysis">
+        <CodeAnalysisRuleSet>$(SettingsRoot)\Common.ruleset</CodeAnalysisRuleSet>
+        <RunCodeAnalysis>true</RunCodeAnalysis>
+        <StyleCopTreatErrorsAsWarnings>true</StyleCopTreatErrorsAsWarnings>
+    </PropertyGroup>
+
+
+    <!--
+          Set the project reference default Private (a.k.a. CopyLocal) value to false.
+     -->
+
+    <ItemDefinitionGroup>
+        <Reference>
+            <Private>false</Private>
+        </Reference>
+        <ProjectReference>
+            <Private>false</Private>
+        </ProjectReference>
+    </ItemDefinitionGroup>
+
+
+    <Import Project="final.targets" />
+
+</Project>

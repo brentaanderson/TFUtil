@@ -1,0 +1,83 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="UpdateDefaults">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+    <!--
+          After the build completes, copy the binaries and symbols to the parent folder.
+     -->
+
+    <Target Name="CopyFilesToFinalOutputDirectory" AfterTargets="Build">
+
+        <ItemGroup>
+            <Source Include="$(OutDir)\$(TargetFileName.ToLower())" />
+            <Source Include="$(OutDir)\$(AssemblyName.ToLower()).pdb" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(Source)" DestinationFiles="@(Source->'$(OutputBase)\%(Filename)$(ConfigurationSuffix)%(Extension)')" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" UseHardlinksIfPossible="true" />
+    </Target>
+
+
+    <!--
+          After the build completes, copy any other files that were specified.
+     -->
+
+    <Target Name="CopyMiscFiles" AfterTargets="CopyFilesToFinalOutputDirectory" Condition="'@(CopyFile)' != ''">
+
+        <Copy SourceFiles="@(CopyFile)" DestinationFiles="@(CopyFile->'%(DestFolder)\%(Filename)%(Extension)')" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" UseHardlinksIfPossible="true" />
+    </Target>
+
+
+    <!--
+         Import language-specific targets and tools.
+    -->
+
+    <ImportGroup Condition="'$(MSBuildProjectExtension)'=='.csproj'">
+        <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    </ImportGroup>
+
+    <ImportGroup Condition="'$(NYI)'=='false'">
+        <Import Project="$(SettingsRoot)\StyleCop.targets" />
+    </ImportGroup>
+
+    <Import Project="TargetFrameworkMonikerAssemblyAttributes.targets" />
+    <Import Project="$(SettingsRoot)\Microsoft.Common.CurrentVersion.Override.targets" />
+
+
+    <!--
+         Reset any values that may have been overridden.
+    -->
+
+    <PropertyGroup Label="Configuration">
+        <ProcessorArchitecture>$(_DefinedProcessorArchitecture)</ProcessorArchitecture>
+        <Prefer32Bit Condition="'$(Language)' == 'C#'">false</Prefer32Bit>
+    </PropertyGroup>
+
+
+    <!--
+         Update any additional defaults.
+    -->
+
+    <Target Name="UpdateDefaults">
+        <ItemGroup>
+            <!-- Remove items -->
+            <!--<PrepareForBuildDependsOn Remove="GetFrameworkPaths" />
+            <PrepareForBuildDependsOn Remove="GetReferenceAssemblyPaths" />-->
+        </ItemGroup>
+    </Target>
+
+
+    <!--
+         Copy config file.
+    -->
+
+    <Target Name="CopyConfig" Condition="Exists('$(AssemblyName).$(OutputType).config')">
+        <Copy SourceFiles="$(AssemblyName).$(OutputType).config" DestinationFolder="$(OutputPath)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
+    </Target>
+
+    <PropertyGroup>
+        <CompileDependsOn>$(CompileDependsOn);CopyConfig</CompileDependsOn>
+    </PropertyGroup>
+
+</Project>

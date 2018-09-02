@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFBug", "TFBug.csproj", "{8F047A76-FCF0-4213-B213-A82E5133368A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		chk|x64 = chk|x64
+		dbg|x64 = dbg|x64
+		ret|x64 = ret|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.chk|x64.ActiveCfg = Checked|Any CPU
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.chk|x64.Build.0 = Checked|Any CPU
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.dbg|x64.ActiveCfg = Debug|Any CPU
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.dbg|x64.Build.0 = Debug|Any CPU
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.ret|x64.ActiveCfg = Retail|Any CPU
+		{8F047A76-FCF0-4213-B213-A82E5133368A}.ret|x64.Build.0 = Retail|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {609FF2BD-BECC-4807-99E1-705460428DBB}
+	EndGlobalSection
+EndGlobal

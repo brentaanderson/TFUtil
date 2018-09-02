@@ -1,0 +1,63 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+
+
+    <!--
+         Set innitial paths common to all projects.
+    -->
+
+    <PropertyGroup Label="RootPaths">
+        <SettingsRoot>$(MSBuildThisFileDirectory.Trim("\"))</SettingsRoot>
+        <BranchRoot>$([System.IO.Directory]::GetParent($(SettingsRoot)))</BranchRoot>
+
+        <!-- Remaining roots are simple concatenation -->
+        <ExternalRoot>$(BranchRoot)\External</ExternalRoot>
+        <PublicRoot>$(BranchRoot)\Public</PublicRoot>
+    </PropertyGroup>
+
+
+
+    <!--
+         Set per-flavour (or configuration) defaults common to all projects.
+    -->
+
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)' == 'Checked'">
+        <ConfigurationSuffix>c</ConfigurationSuffix>
+        <DebugType>full</DebugType>
+        <DefineConstants>$(DefineConstants);CHKBLD;_DEBUG;DEBUG;TRACE</DefineConstants>
+        <Optimize>true</Optimize>
+        <ShortConfiguration>chk</ShortConfiguration>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)' == 'Debug'">
+        <ConfigurationSuffix>d</ConfigurationSuffix>
+        <DebugType>full</DebugType>
+        <DefineConstants>$(DefineConstants);DBGBLD;_DEBUG;DEBUG;TRACE</DefineConstants>
+        <Optimize>false</Optimize>
+        <ShortConfiguration>dbg</ShortConfiguration>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)' == 'Free'">
+        <ConfigurationSuffix/>
+        <DebugType>full</DebugType>
+        <DefineConstants>$(DefineConstants);FREBLD;_NDEBUG;TRACE</DefineConstants>
+        <Optimize>true</Optimize>
+        <ShortConfiguration>fre</ShortConfiguration>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)' == 'Retail'">
+        <ConfigurationSuffix/>
+        <DebugType>pdbonly</DebugType>
+        <DefineConstants>$(DefineConstants);RETBLD;_NDEBUG</DefineConstants>
+        <Optimize>true</Optimize>
+        <ShortConfiguration>ret</ShortConfiguration>
+    </PropertyGroup>
+
+
+    <Import Project="initial.targets" />
+
+</Project>

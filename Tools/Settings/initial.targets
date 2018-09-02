@@ -1,0 +1,33 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+
+     <!--
+          Verify final.settings.targets was imported.
+     -->
+
+    <Target Name="VerifyImports"
+            BeforeTargets="Build">
+
+        <ItemGroup>
+            <RequiredImports Include="$(SettingsRoot)\final.settings.targets" />
+        </ItemGroup>
+
+        <ItemGroup>
+            <VerifiedIncludes Include="@(Import)"
+                              Condition="'%(Identity)' == '@(RequiredImports)'" />
+        </ItemGroup>
+
+        <ItemGroup>
+            <MissingIncludes Include="@(RequiredImports)"
+                             Condition="'%(Identity)' != '@(Import)'" />
+        </ItemGroup>
+
+        <Error Condition="'@(MissingIncludes)' != ''"
+               Text="Projects must import @(MissingIncludes->'%(Identity)')" />
+    </Target>
+
+</Project>

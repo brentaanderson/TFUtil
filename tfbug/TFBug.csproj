@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Latest">
+    <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), branch.settings.targets))\branch.settings.targets" />
+    <PropertyGroup>
+        <AssemblyCOMVisible>false</AssemblyCOMVisible>
+        <AssemblyNeutralResourcesLanguage>en</AssemblyNeutralResourcesLanguage>
+        <OutputType>exe</OutputType>
+        <ProjectGuid>{8F047A76-FCF0-4213-B213-A82E5133368A}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Microsoft.TeamFoundation.Client.dll" />
+        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client.dll" />
+        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client.dll" />
+        <Reference Include="System" />
+        <Reference Include="System.Configuration" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Application.cs" />
+        <Compile Include="CommandLineArgs.cs" />
+        <Compile Include="Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+        <Compile Include="TFBug.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="tfbug.exe.config" />
+    </ItemGroup>
+    <ItemGroup>
+        <Resource Include="Resources.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </Resource>
+    </ItemGroup>
+    <Import Project="$(SettingsRoot)\final.settings.targets" />
+</Project>

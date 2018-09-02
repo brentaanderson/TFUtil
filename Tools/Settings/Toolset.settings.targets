@@ -1,0 +1,51 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup>
+        <Import Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+    <PropertyGroup Label="GlobalProperties">
+        <ProcessArchitecture>$(PROCESSOR_ARCHITECTURE.ToLower())</ProcessArchitecture>
+        <AddressWidth Condition="'$(PROCESSOR_ARCHITECTURE' == 'x86'">32</AddressWidth>
+        <AddressWidth Condition="'$(PROCESSOR_ARCHITECTURE' != 'x86'">64</AddressWidth>
+    </PropertyGroup>
+    
+    <PropertyGroup Label="ToolsetProperties" Condition="'$(ToolsVersion)' == ''">
+        <_VCTargetsRoot>$(ToolsRoot)\Microsoft.Cpp\v4.0</_VCTargetsRoot>
+    </PropertyGroup>
+
+    <PropertyGroup Label="ToolsetProperties" Condition="'$(ToolsVersion)' == 'Latest'">
+        <!-- MSBuild predefined properties (ref: https://msdn.microsoft.com/en-us/library/ms164309.aspx) -->
+        <MSBuildToolsVersion>$(ToolsVersion)</MSBuildToolsVersion>
+        <MSBuildBinPath>$(MSBuildToolsPath)</MSBuildBinPath>
+        <MSBuildNodeCount>$(NUMBER_OF_PROCESSORS)</MSBuildNodeCount>
+        <MSBuildToolsRoot>$(ToolsRoot)\MSBuild</MSBuildToolsRoot>
+        <MSBuildToolsPath32>$(MSBuildToolsRoot)\$(ToolsVersion)\Bin</MSBuildToolsPath32>
+        <MSBuildToolsPath64>$(MSBuildToolsPath32)\amd64</MSBuildToolsPath64>
+        <MSBuildToolsPath>$(MSBuildToolsPath64)</MSBuildToolsPath>
+        <MSBuildExtensionsPath32>$(ToolsRoot)\MSBuild</MSBuildExtensionsPath32>
+        <MSBuildExtensionsPath>$(MSBuildExtensionsPath32)</MSBuildExtensionsPath>        
+
+        <!-- Other toolset properties -->
+        <WindowsVersion>8.1</WindowsVersion>
+        <FrameworkSDKRoot>$(ToolsRoot)\SDK\v$(WindowsVersion)</FrameworkSDKRoot>
+        <!-- needed?
+        <_FullFrameworkReferenceAssemblyPaths>$(ToolsRoot)\ReferenceAssemblies</_FullFrameworkReferenceAssemblyPaths>
+        -->
+
+        <_VCTargetsRoot>$(MSBuildExtensionsPath)</_VCTargetsRoot>
+
+        <MSBuildRuntimeVersion>4.0.30319</MSBuildRuntimeVersion>
+        <MSBuildFrameworkToolsRoot32>C:\WINDOWS\Microsoft.NET\Framework</MSBuildFrameworkToolsRoot32>
+        <MSBuildFrameworkToolsRoot>$(MSBuildFrameworkToolsRoot32)64</MSBuildFrameworkToolsRoot>
+        <MSBuildFrameworkToolsPath>$(MSBuildFrameworkToolsRoot)\v$(MSBuildRuntimeVersion)</MSBuildFrameworkToolsPath>
+    </PropertyGroup>
+
+    <PropertyGroup Label="VCProperties" Condition="Exists('$(_VCTargetsRoot)')">
+        <VCTargetsPath10>$(_VCTargetsRoot)</VCTargetsPath10>
+        <VCTargetsPath11>$(_VCTargetsRoot)\V110</VCTargetsPath11>
+        <VCTargetsPath12>$(_VCTargetsRoot)\V120</VCTargetsPath12>
+        <VCTargetsPath>$(VCTargetsPath12)</VCTargetsPath>
+    </PropertyGroup>
+
+</Project>
